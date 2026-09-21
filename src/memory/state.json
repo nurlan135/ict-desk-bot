@@ -1,0 +1,114 @@
+{
+  "last_intel_utc": "2026-09-21T13:55:39.894Z",
+  "last_exec_utc": "",
+  "asia": {
+    "high": 1.14956,
+    "low": 1.14713,
+    "swept": false,
+    "swept_time": null
+  },
+  "defended_fvgs": [
+    {
+      "type": "Bullish",
+      "high": 1.1478915,
+      "low": 1.1476484999999998,
+      "idx": -1,
+      "status": "Defended",
+      "reaction": "aggressive"
+    }
+  ],
+  "weak_fvgs": [
+    {
+      "type": "Bearish",
+      "high": 1.14956,
+      "low": 1.1495114,
+      "idx": -1,
+      "status": "Weak - Liquidity Target"
+    }
+  ],
+  "sentiment_history": [
+    {
+      "time": "2026-09-21T12:40:21.909Z",
+      "buy": 57.1,
+      "sell": 42.9
+    },
+    {
+      "time": "2026-09-21T13:45:05.737Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:47:31.001Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:48:04.568Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:49:15.316Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:49:28.835Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:49:57.424Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:50:01.125Z",
+      "buy": 58.2,
+      "sell": 41.8
+    },
+    {
+      "time": "2026-09-21T13:55:01.888Z",
+      "buy": 58.8,
+      "sell": 41.2
+    },
+    {
+      "time": "2026-09-21T13:55:18.395Z",
+      "buy": 58.8,
+      "sell": 41.2
+    },
+    {
+      "time": "2026-09-21T13:55:39.894Z",
+      "buy": 58.8,
+      "sell": 41.2
+    }
+  ],
+  "macro_regime": "Expansion",
+  "pre_ny_bias": "DISCOUNT",
+  "retail_extreme_start": null,
+  "last_update_utc": "2026-09-21T12:37:19.624Z",
+  "asia_sweep_detected": false,
+  "asia_high": 1.14956,
+  "asia_low": 1.14713,
+  "retail_sentiment_history": [
+    {
+      "time": "2026-09-21T12:34:30.688Z",
+      "buy_avg": 57.1
+    },
+    {
+      "time": "2026-09-21T12:37:19.624Z",
+      "buy_avg": 57.1
+    }
+  ],
+  "macro_regime_history": [
+    {
+      "time": "2026-09-21T12:34:30.688Z",
+      "regime": "Equilibrium"
+    },
+    {
+      "time": "2026-09-21T12:37:19.624Z",
+      "regime": "Expansion"
+    }
+  ],
+  "pre_ny_analysis": "Retail 57.1% NEUTRAL, FVG Defended (Bearish), OTE in=true, sweep=false"
+}
