@@ -144,14 +144,16 @@ function detectFVG(candles: any[], price: number, h1: number, l1: number) {
 }
 
 async function runOnce(env: Env): Promise<string> {
-  const symbol = env.SYMBOL || "EUR/USD";
+  const rawSymbol = env.SYMBOL || "EUR/USD";
+  const tdSymbol = rawSymbol === "XAUUSD" || rawSymbol === "GOLD" ? "XAU/USD" : rawSymbol;
+  const symbol = rawSymbol;
   const sess = getGlobalSession();
   const state = await kvGet(env, "state", { last_intel_utc: "", sentiment_history: [] });
 
   if (!sess.is_ny && state.last_intel_utc && Date.now() - new Date(state.last_intel_utc).getTime() < 3600e3)
     return `[SKIP ${sess.session}] intel fresh`;
 
-  const candles = await tdCandles(symbol, env.TWELVEDATA_API_KEY, 100);
+  const candles = await tdCandles(tdSymbol, env.TWELVEDATA_API_KEY, 100);
   const today = new Date(candles[0].datetime.replace(" ", "T") + "Z").toISOString().slice(0, 10);
   const day = candles.filter(c => new Date(c.datetime.replace(" ", "T") + "Z").toISOString().slice(0, 10) === today);
   const scope = day.length ? day : candles;
@@ -184,8 +186,9 @@ async function runOnce(env: Env): Promise<string> {
   if (exec === "STAND_ASIDE" || (dealing === "Premium" && exec === "EXECUTE_LONG") || (dealing === "Discount" && exec === "EXECUTE_SHORT"))
     return `NO_TRADE: sweep=${sweep} dealing=${dealing}`;
 
+  const dec = tdSymbol === "XAU/USD" ? 2 : 5;
   const side = exec === "EXECUTE_SHORT" ? "SELL" : "BUY";
-  const entry = Number(price.toFixed(5));
+  const entry = Number(price.toFixed(dec));
   const sl = fvg.inv;
   const tp = side === "BUY" ? h : l;
   const rr = Number((Math.abs(tp - entry) / (Math.abs(entry - sl) || 1e-9)).toFixed(2));

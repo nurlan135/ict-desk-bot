@@ -40,8 +40,11 @@ export interface MarketState {
   d1_low: number;
   overnight_high: number;
   overnight_low: number;
+  asia_high?: number;
+  asia_low?: number;
   spx_price: number;
   session: Session;
+  source?: string;
   timestamp_utc: string;
 }
 
@@ -99,7 +102,69 @@ function todayKeyUTC(datetime: string): string {
   return d.toISOString().slice(0, 10);
 }
 
-export async function getMarketState(): Promise<MarketState> {
+async function getXauState(key: string | undefined): Promise<MarketState> {
+  if (key) {
+    try {
+      const [qRes, dRes, hRes] = await Promise.all([
+        fetch(`https://api.twelvedata.com/quote?symbol=XAU/USD&apikey=${encodeURIComponent(key)}`),
+        fetch(`https://api.twelvedata.com/time_series?symbol=XAU/USD&interval=1day&apikey=${encodeURIComponent(key)}&outputsize=2`),
+        fetch(`https://api.twelvedata.com/time_series?symbol=XAU/USD&interval=1h&apikey=${encodeURIComponent(key)}&outputsize=24`),
+      ]);
+      const data = await qRes.json() as any;
+      const daily = await dRes.json() as any;
+      const h1data = await hRes.json() as any;
+      if (data && data.close) {
+        const h1highs: number[] = h1data.values?.slice(0, 8).map((v: any) => parseFloat(v.high)) || [parseFloat(data.high)];
+        const h1lows: number[] = h1data.values?.slice(0, 8).map((v: any) => parseFloat(v.low)) || [parseFloat(data.low)];
+        const price = parseFloat(data.close);
+        const d1_high = parseFloat(daily.values?.[0]?.high || data.high);
+        const d1_low = parseFloat(daily.values?.[0]?.low || data.low);
+        const asia_high = Math.max(...h1highs);
+        const asia_low = Math.min(...h1lows);
+        return {
+          symbol: "XAUUSD",
+          price,
+          d1_high,
+          d1_low,
+          overnight_high: asia_high,
+          overnight_low: asia_low,
+          asia_high,
+          asia_low,
+          spx_price: 5420,
+          session: getGlobalSession().session,
+          source: "TWELVEDATA REAL",
+          timestamp_utc: new Date().toISOString(),
+        };
+      }
+    } catch (e) { console.log("TwelveData XAU fail, fallback-a keçir", e); }
+  }
+  try {
+    const res = await fetch("https://api.gold-api.com/price/XAU");
+    const data = await res.json() as { price: number };
+    const price = data.price;
+    return {
+      symbol: "XAUUSD",
+      price,
+      d1_high: price * 1.005,
+      d1_low: price * 0.995,
+      overnight_high: price * 1.002,
+      overnight_low: price * 0.998,
+      asia_high: price * 1.002,
+      asia_low: price * 0.998,
+      spx_price: 5420,
+      session: getGlobalSession().session,
+      source: "GOLD-API REAL",
+      timestamp_utc: new Date().toISOString(),
+    };
+  } catch {
+    throw new Error("XAUUSD real data alınmadı");
+  }
+}
+
+export async function getMarketState(symbol = "EUR/USD"): Promise<MarketState> {
+  if (symbol === "XAUUSD" || symbol === "GOLD" || symbol === "XAU/USD") {
+    return getXauState(loadApiKey());
+  }
   const key = loadApiKey();
   if (!key) return mockState();
 
@@ -193,7 +258,8 @@ function applyForceFlag(state: MarketState): MarketState {  if (process.argv.inc
 
 async function main() {
   try {
-    const state = await getMarketState("EUR/USD");
+    const arg = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "EUR/USD";
+    const state = await getMarketState(arg);
     console.log(JSON.stringify(state, null, 2));
   } catch (e) {
     console.error("Collector xətası:", e);
