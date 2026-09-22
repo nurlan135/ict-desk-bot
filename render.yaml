@@ -1,0 +1,15 @@
+services:
+  - type: cron
+    name: ict-desk
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npx tsx src/bot.ts --once
+    schedule: "*/15 * * * 1-5"
+    envVars:
+      - key: TWELVEDATA_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false

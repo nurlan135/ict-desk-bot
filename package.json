@@ -1,4 +1,6 @@
 {
+  "engines": { "node": "20" },
+  "scripts": { "start": "tsx src/bot.ts", "bot:once": "tsx src/bot.ts --once" },
   "dependencies": {
     "dotenv": "^18.0.1",
     "node-cron": "^4.6.0",
