@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 export interface Env {
   TWELVEDATA_API_KEY: string;
   TELEGRAM_BOT_TOKEN: string;
