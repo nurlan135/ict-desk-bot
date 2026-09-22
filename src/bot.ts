@@ -52,6 +52,7 @@ async function runExecution() {
   if (!macro.can_trade) { console.log(`BLOCKED: ${macro.fatal_flaw}`); return; }
 
   const jev = await getJevDecision(market);
+  console.log(`[${market.symbol}] JEV: ${jev.execution_decision.value} ${jev._mode} ${jev.final_confidence}%`);
   const fvg = await getFvgState(market.symbol, market, macro, jev);
   const risk = checkRisk(market, jev as never, { market, sentiment, macro, fvg });
   const side = jev.execution_decision.value === "EXECUTE_SHORT" ? "SELL" : "BUY";

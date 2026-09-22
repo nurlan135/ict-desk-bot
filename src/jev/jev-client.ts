@@ -20,6 +20,7 @@ export interface JevDecision {
   smt_divergence: TypedAnswer<SmtDivergence>;
   execution_decision: TypedAnswer<ExecutionDecision>;
   final_confidence: number;
+  _mode?: "REAL" | "MOCK";
 }
 
 export interface EurusdMarketState {
@@ -89,7 +90,16 @@ function mockDecision(input: AnyState): JevDecision {
 
 export async function getJevDecision(state: AnyState): Promise<JevDecision> {
   const key = loadApiKey();
-  if (!key) return mockDecision(state);
+  const hasKey = !!key;
+  const s = state as Record<string, unknown>;
+  console.log(`[JEV] Mode: ${hasKey ? "REAL API ✅" : "MOCK MODE ⚠️"} | Symbol: ${s.symbol} | Price: ${s.price}`);
+
+  const finish = (r: JevDecision): JevDecision => {
+    console.log(`[JEV] Decision: ${r.execution_decision.value} | Confidence: ${r.final_confidence}% | Range: ${r.dealing_range.value} | Sweep: ${r.is_asia_sweep_complete.value}`);
+    return { ...r, _mode: hasKey ? "REAL" : "MOCK" };
+  };
+
+  if (!key) return finish(mockDecision(state));
   try {
     const res = await fetch("https://api.typesafe.ai/v1/decide", {
       method: "POST",
@@ -105,14 +115,16 @@ export async function getJevDecision(state: AnyState): Promise<JevDecision> {
         ],
       }),
     });
-    if (!res.ok) return mockDecision(state);
+    if (!res.ok) { console.log(`[JEV] API HTTP ${res.status}, MOCK fallback`); return finish(mockDecision(state)); }
     const data = (await res.json()) as JevDecision;
     if (!data.dealing_range || !data.execution_decision || typeof data.final_confidence !== "number") {
-      return mockDecision(state);
+      console.log("[JEV] API cavabı natamam, MOCK fallback");
+      return finish(mockDecision(state));
     }
-    return data;
-  } catch {
-    return mockDecision(state);
+    return finish(data);
+  } catch (e) {
+    console.log("[JEV] API xətası, MOCK fallback:", (e as Error).message);
+    return finish(mockDecision(state));
   }
 }
 
